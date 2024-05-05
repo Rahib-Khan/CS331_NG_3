@@ -85,26 +85,25 @@ create table [Process].[WorkflowSteps]
 create schema Course
 
 --Adding datatype for section in course table	
-create type [udt].[SurrogateKeyString] from NVARCHAR(10) not null
-
+create type [udt].[SurrogateKeyString] from NVARCHAR(30) not null
 
 create table [Course].[Course]
 (
     [CourseID] [udt].[SurrogateKeyInt] identity(1,1) PRIMARY KEY NOT NULL,
+    [CourseCode] [udt].[SurrogateKeyString]  null,
     [Description] [udt].[workflowstring]  null,
-    [CourseCode] [udt].[SurrogateKeyint]  null,
-    [Section] [udt].[SurrogateKeyString]  null,
-    [Semester] [udt].[workflowstring]  null,
-    --[InstructorID] [udt].[SurrogateKeyInt]  null,
     [UserAuthorizationKey] [Udt].[SurrogateKeyInt]  null,
     [DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
     [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
 )
 
+
 --Adding some columns from uploadfile 
 insert into Course.Course
-(CourseCode,Section,[Description],Semester) 
-select code,sec,[Description],Semester from Uploadfile.CurrentSemesterCourseOfferings
+(CourseCode,[Description]) 
+select distinct(SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)),
+[Description] from 
+Uploadfile.CurrentSemesterCourseOfferings
 
 
 --Table:Mode of instruction
@@ -113,7 +112,6 @@ CREATE TABLE [Course].[Mode_Of_Instruction]
 (
   [ModeID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
   [Name] [udt].[workflowstring] not null,
-  [CourseID] [Udt].[SurrogateKeyInt] References [course].[course](CourseId) ON UPDATE CASCADE,
   [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
   [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
   [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
@@ -124,8 +122,6 @@ INSERT INTO Course.Mode_Of_Instruction
 (
     Name
 )
-SELECT [Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
+SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
 
-UPDATE Course.Mode_Of_Instruction
-SET CourseID = ModeID WHERE CourseID IS NULL; 
 
