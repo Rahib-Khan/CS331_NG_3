@@ -76,3 +76,30 @@ create table [Process].[WorkflowSteps]
     [ClassTime] [Udt].[ClassTime] NULL DEFAULT ('7:45'),
     [UserAuthorizationKey] [Udt].[SurrogateKeyInt] not null
 )
+
+
+--Course Schema tables
+create schema Course
+
+create type [udt].[SurrogateKeyString] from NVARCHAR(10) not null
+
+
+create table [Course].[Course]
+(
+    [CourseID] [udt].[SurrogateKeyInt] identity(1,1) PRIMARY KEY NOT NULL,
+    [Description] [udt].[workflowstring]  null,
+    [CourseCode] [udt].[SurrogateKeyint]  null,
+    [Section] [udt].[SurrogateKeyString]  null,
+    [Semester] [udt].[workflowstring]  null,
+    --[InstructorID] [udt].[SurrogateKeyInt]  null,
+    [UserAuthorizationKey] [Udt].[SurrogateKeyInt]  null,
+    [DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+    [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
+)
+
+
+insert into Course.Course
+(CourseCode,Section,[Description],Semester) 
+select code,sec,[Description],Semester from Uploadfile.CurrentSemesterCourseOfferings
+
+
