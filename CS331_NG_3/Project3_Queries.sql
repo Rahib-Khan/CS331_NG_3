@@ -125,3 +125,37 @@ INSERT INTO Course.Mode_Of_Instruction
 SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
 
 
+
+CREATE TYPE [Udt].[ClassDuration] FROM NVARCHAR(30) NOT NULL;
+
+create type [Udt].[SurrogateKeyFloat] from FLOAT not null
+
+--add foreign keys later with a seperate stored procedure
+CREATE TABLE [Course].[Class]
+(
+	[ClassID] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+  [Enrollment] [Udt].[SurrogateKeyInt] NULL,
+  [Limit] [Udt].[SurrogateKeyInt] NULL,
+  [Section] [Udt].[SurrogateKeyString] null,
+  [ClassCode] [Udt].[SurrogateKeyString] NULL,
+  [Days] [Udt].[SurrogateKeyString] null,
+  [Time] [Udt].[ClassDuration] NULL,
+  [Hours] [udt].[SurrogateKeyFloat] null,
+  [Credits] [udt].[SurrogateKeyInt] null,
+  [ModeID] [Udt].[SurrogateKeyInt] null,
+  [InstructorID] [Udt].[SurrogateKeyInt] null,
+  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
+  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+)
+
+insert into Course.Class
+(Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits], ModeID  )
+select Enrolled, [Limit], Sec, Code, [Day], [Time], 
+(SUBSTRING([Course (hr, crd)], CHARINDEX('(', [Course (hr, crd)]) + 1, CHARINDEX(',', [Course (hr, crd)]) - CHARINDEX('(', [Course (hr, crd)]) - 1)),
+(SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1)),
+ModeID
+from Uploadfile.CurrentSemesterCourseOfferings a
+join Course.Mode_Of_Instruction b on b.name = a.[Mode of Instruction]
+
+
