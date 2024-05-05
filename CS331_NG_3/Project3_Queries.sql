@@ -42,7 +42,7 @@ select * from Uploadfile.CurrentSemesterCourseOfferings
 --creating dbsecurity datatypes
 create schema udt;
 
-CREATE TYPE [Udt].[SuurogateKeyInt] FROM [int] NULL
+CREATE TYPE [Udt].[SurrogateKeyInt] FROM [int] NULL
 CREATE TYPE [Udt].[DateAdded] FROM Datetime2(7) NOT NULL
 CREATE TYPE [Udt].[ClassTime] FROM nchar(5) NOT NULL
 CREATE TYPE [Udt].[IndividualProject] FROM nvarchar (60) NOT NULL
@@ -66,6 +66,9 @@ CREATE TABLE [DbSecurity].[UserAuthorization]
 
 --Create Process workflow steps table
 create schema process
+
+create type [udt].[workflowstring] from NVARCHAR(100) not null
+create type [udt].[Rowcount] from [int] not null
 create table [Process].[WorkflowSteps]
 (
     [WorkflowStepsKey] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -81,6 +84,7 @@ create table [Process].[WorkflowSteps]
 --Course Schema tables
 create schema Course
 
+--Adding datatype for section in course table	
 create type [udt].[SurrogateKeyString] from NVARCHAR(10) not null
 
 
@@ -97,9 +101,8 @@ create table [Course].[Course]
     [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
 )
 
-
+--Adding some columns from uploadfile 
 insert into Course.Course
 (CourseCode,Section,[Description],Semester) 
 select code,sec,[Description],Semester from Uploadfile.CurrentSemesterCourseOfferings
-
 
