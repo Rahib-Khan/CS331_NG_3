@@ -42,7 +42,7 @@ select * from Uploadfile.CurrentSemesterCourseOfferings
 --creating dbsecurity datatypes
 create schema udt;
 
-CREATE TYPE [Udt].[SuurogateKeyInt] FROM [int] NULL
+CREATE TYPE [Udt].[SurrogateKeyInt] FROM [int] NULL
 CREATE TYPE [Udt].[DateAdded] FROM Datetime2(7) NOT NULL
 CREATE TYPE [Udt].[ClassTime] FROM nchar(5) NOT NULL
 CREATE TYPE [Udt].[IndividualProject] FROM nvarchar (60) NOT NULL
