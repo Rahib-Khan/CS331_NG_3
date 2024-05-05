@@ -66,6 +66,9 @@ CREATE TABLE [DbSecurity].[UserAuthorization]
 
 --Create Process workflow steps table
 create schema process
+
+create type [udt].[workflowstring] from NVARCHAR(100) not null
+create type [udt].[Rowcount] from [int] not null
 create table [Process].[WorkflowSteps]
 (
     [WorkflowStepsKey] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -102,5 +105,4 @@ create table [Course].[Course]
 insert into Course.Course
 (CourseCode,Section,[Description],Semester) 
 select code,sec,[Description],Semester from Uploadfile.CurrentSemesterCourseOfferings
-
 
