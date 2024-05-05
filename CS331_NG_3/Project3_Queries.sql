@@ -81,6 +81,7 @@ create table [Process].[WorkflowSteps]
 --Course Schema tables
 create schema Course
 
+--Adding datatype for section in course table	
 create type [udt].[SurrogateKeyString] from NVARCHAR(10) not null
 
 
@@ -97,7 +98,7 @@ create table [Course].[Course]
     [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
 )
 
-
+--Adding some columns from uploadfile 
 insert into Course.Course
 (CourseCode,Section,[Description],Semester) 
 select code,sec,[Description],Semester from Uploadfile.CurrentSemesterCourseOfferings
