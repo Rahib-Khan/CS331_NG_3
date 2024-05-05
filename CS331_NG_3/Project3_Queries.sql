@@ -108,3 +108,26 @@ insert into Course.Course
 (CourseCode,Section,[Description],Semester) 
 select code,sec,[Description],Semester from Uploadfile.CurrentSemesterCourseOfferings
 
+
+--Table:Mode of instruction
+-- Author:Nak
+CREATE TABLE [Course].[Mode_Of_Instruction]
+(
+  [ModeID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+  [Name] [udt].[workflowstring] not null,
+  [CourseID] [Udt].[SurrogateKeyInt] References [course].[course](CourseId) ON UPDATE CASCADE,
+  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
+  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+);
+
+
+INSERT INTO Course.Mode_Of_Instruction
+(
+    Name
+)
+SELECT [Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
+
+UPDATE Course.Mode_Of_Instruction
+SET CourseID = ModeID WHERE CourseID IS NULL; 
+
