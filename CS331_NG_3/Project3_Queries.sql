@@ -162,7 +162,7 @@ join Course.Mode_Of_Instruction b on b.name = a.[Mode of Instruction]
 
 -- Room Location Table
 
-create schema Location
+create schema Location;
 
 create table [Location].[BuildingLocation](
   [BuildingLocationID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -223,21 +223,22 @@ join [Location].[BuildingLocation] on buildinglocationabv = SUBSTRING([Location]
 
 
 
-create schema Department
+create schema Department;
 
 create table [Department].[Departments](
   [DepartmentID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+  [DepartmentAbv] [udt].[SurrogateKeystring] not null,
   [DepartmentName] [udt].[workflowstring] not null,
   [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
   [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
   [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
 );
 
-
+select * from Department.Departments
 
 insert into Department.Departments
-(DepartmentName)
-SELECT DISTINCT Department
+(DepartmentName, DepartmentAbv)
+SELECT DISTINCT Department, SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
 FROM (
     SELECT DISTINCT (SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))) AS DepartmentCode,
         CASE SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
@@ -326,4 +327,32 @@ FROM (
             ELSE 'Unknown' --Cert,Mam,Perm
         END AS Department
     FROM Uploadfile.CurrentSemesterCourseOfferings
-) AS DepartmentCodes
+) AS b
+join Uploadfile.CurrentSemesterCourseOfferings on DepartmentCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
+
+CREATE TABLE [Department].[Instructor]
+(
+	[InstructorID] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+  [FirstName] [Udt].[WorkFlowString] NOT NULL,
+  [LastName] [Udt].[WorkFlowString] NOT NULL,
+  [FullName] [Udt].[WorkFlowString] NOT NULL,
+  [DepartmentID] [Udt].[SurrogateKeyInt] not null,
+  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] NULL,
+	[DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+	[DateOfLastUpdate] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME()
+)
+
+select SUBSTRING(Instructor, CHARINDEX(',',Instructor,1), CHARINDEX('')) from Uploadfile.CurrentSemesterCourseOfferings
+
+insert into Department.Instructor
+(LastName,FirstName, FullName, DepartmentID)
+SELECT distinct
+    SUBSTRING([Instructor], 1, CHARINDEX(',', [Instructor]) - 1) AS LastName,
+    SUBSTRING([Instructor], CHARINDEX(',', [Instructor]) + 2, LEN([Instructor]) - CHARINDEX(',', [Instructor]) - 1) AS FirstName,
+    CONCAT(SUBSTRING([Instructor], CHARINDEX(',', [Instructor]) + 2, LEN([Instructor]) - CHARINDEX(',', [Instructor]) - 1), ' ',
+    SUBSTRING([Instructor], 1, CHARINDEX(',', [Instructor]) - 1)), 
+    DepartmentID
+FROM 
+    Uploadfile.CurrentSemesterCourseOfferings
+    join Department.Departments on DepartmentAbv =  SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)) 
+
