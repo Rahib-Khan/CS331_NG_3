@@ -80,7 +80,9 @@ create table [Process].[WorkflowSteps]
     [UserAuthorizationKey] [Udt].[SurrogateKeyInt] not null
 )
 
-
+--Table: Course	
+--Author:Rahib
+	
 --Course Schema tables
 create schema Course
 
