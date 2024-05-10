@@ -140,10 +140,11 @@ INSERT INTO Course.CourseMode
     CourseID,
     ModeID
 )
-SELECT Distinct CourseID, ModeID
+SELECT Distinct CourseID,ModeID
 FROM Uploadfile.CurrentSemesterCourseOfferings
-JOIN [Course].[Course] ON CourseCode = Code
+JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
 JOIN [Course].[Mode_Of_Instruction] ON [Name] = [Mode of Instruction]
+
 
 
 
