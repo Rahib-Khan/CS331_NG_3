@@ -354,7 +354,7 @@ SELECT distinct
 FROM 
     Uploadfile.CurrentSemesterCourseOfferings
 
-
+--Bride Table that connects the Instructors and their Departments
 
 CREATE TABLE Department.InstructorDepartment
 (
