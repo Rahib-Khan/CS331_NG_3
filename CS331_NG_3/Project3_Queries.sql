@@ -108,8 +108,7 @@ select distinct(SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd
 Uploadfile.CurrentSemesterCourseOfferings
 
 
---Table:Mode of instruction
--- Author:Nak
+
 CREATE TABLE [Course].[Mode_Of_Instruction]
 (
   [ModeID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -125,6 +124,27 @@ INSERT INTO Course.Mode_Of_Instruction
     Name
 )
 SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
+
+
+-- Bridge Table for Course and MOI tables
+Create Table [Course].CourseMode(
+  [CourseID] [udt].[SurrogateKeyInt],
+  [ModeID] [udt].[SurrogateKeyInt],
+  PRIMARY Key (CourseID,ModeID),
+  FOREIGN Key (CourseID) REFERENCES [Course].[Course],
+  FOREIGN Key (ModeID) REFERENCES [Course].[Mode_Of_Instruction]
+)
+
+INSERT INTO Course.CourseMode
+(
+    CourseID,
+    ModeID
+)
+SELECT Distinct CourseID,ModeID
+FROM Uploadfile.CurrentSemesterCourseOfferings
+JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
+JOIN [Course].[Mode_Of_Instruction] ON [Name] = [Mode of Instruction]
+
 
 
 
