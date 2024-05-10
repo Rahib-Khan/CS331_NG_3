@@ -234,7 +234,6 @@ create table [Department].[Departments](
   [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
 );
 
-select * from Department.Departments
 
 insert into Department.Departments
 (DepartmentName, DepartmentAbv)
@@ -330,29 +329,49 @@ FROM (
 ) AS b
 join Uploadfile.CurrentSemesterCourseOfferings on DepartmentCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
 
+
+
+
 CREATE TABLE [Department].[Instructor]
 (
 	[InstructorID] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
-  [FirstName] [Udt].[WorkFlowString] NOT NULL,
-  [LastName] [Udt].[WorkFlowString] NOT NULL,
-  [FullName] [Udt].[WorkFlowString] NOT NULL,
-  [DepartmentID] [Udt].[SurrogateKeyInt] not null,
+  [FirstName] [Udt].[WorkFlowString] not NULL,
+  [LastName] [Udt].[WorkFlowString] not NULL,
+  [FullName] [Udt].[WorkFlowString]not NULL,
   [UserAuthorizationKey] [Udt].[SurrogateKeyInt] NULL,
 	[DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
 	[DateOfLastUpdate] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME()
 )
 
-select SUBSTRING(Instructor, CHARINDEX(',',Instructor,1), CHARINDEX('')) from Uploadfile.CurrentSemesterCourseOfferings
+
 
 insert into Department.Instructor
-(LastName,FirstName, FullName, DepartmentID)
+(LastName,FirstName, FullName)
 SELECT distinct
     SUBSTRING([Instructor], 1, CHARINDEX(',', [Instructor]) - 1) AS LastName,
     SUBSTRING([Instructor], CHARINDEX(',', [Instructor]) + 2, LEN([Instructor]) - CHARINDEX(',', [Instructor]) - 1) AS FirstName,
-    CONCAT(SUBSTRING([Instructor], CHARINDEX(',', [Instructor]) + 2, LEN([Instructor]) - CHARINDEX(',', [Instructor]) - 1), ' ',
-    SUBSTRING([Instructor], 1, CHARINDEX(',', [Instructor]) - 1)), 
-    DepartmentID
+    Instructor
 FROM 
     Uploadfile.CurrentSemesterCourseOfferings
-    join Department.Departments on DepartmentAbv =  SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)) 
+
+
+
+CREATE TABLE Department.InstructorDepartment
+(
+	[InstructorId] [Udt].[SurrogateKeyInt],
+	[DepartmentId] [Udt].[SurrogateKeyInt],
+	PRIMARY KEY ([InstructorId], [DepartmentId]),
+	FOREIGN KEY ([InstructorId]) REFERENCES Department.Instructor,
+	FOREIGN KEY ([DepartmentId]) REFERENCES Department.Departments
+)
+
+INSERT INTO Department.InstructorDepartment
+(
+    InstructorId,
+    DepartmentId
+)
+SELECT DISTINCT InstructorId, DepartmentID
+FROM Uploadfile.CurrentSemesterCourseOfferings
+JOIN Department.Departments ON DepartmentAbv = (SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)))
+JOIN Department.Instructor ON FullName = Instructor
 
