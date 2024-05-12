@@ -112,7 +112,7 @@ Uploadfile.CurrentSemesterCourseOfferings
 CREATE TABLE [Course].[Mode_Of_Instruction]
 (
   [ModeID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
-  [Name] [udt].[workflowstring] not null,
+  [ModeName] [udt].[workflowstring] not null,
   [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
   [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
   [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
@@ -121,29 +121,9 @@ CREATE TABLE [Course].[Mode_Of_Instruction]
 
 INSERT INTO Course.Mode_Of_Instruction
 (
-    Name
+    ModeName
 )
 SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
-
-
--- Bridge Table for Course and MOI tables
-Create Table [Course].CourseMode(
-  [CourseID] [udt].[SurrogateKeyInt],
-  [ModeID] [udt].[SurrogateKeyInt],
-  PRIMARY Key (CourseID,ModeID),
-  FOREIGN Key (CourseID) REFERENCES [Course].[Course],
-  FOREIGN Key (ModeID) REFERENCES [Course].[Mode_Of_Instruction]
-)
-
-INSERT INTO Course.CourseMode
-(
-    CourseID,
-    ModeID
-)
-SELECT Distinct CourseID,ModeID
-FROM Uploadfile.CurrentSemesterCourseOfferings
-JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
-JOIN [Course].[Mode_Of_Instruction] ON [Name] = [Mode of Instruction]
 
 
 
@@ -179,6 +159,32 @@ select Enrolled, [Limit], Sec, Code, [Day], [Time],
 ModeID
 from Uploadfile.CurrentSemesterCourseOfferings a
 join Course.Mode_Of_Instruction b on b.name = a.[Mode of Instruction]
+
+
+-- Bridge Table Connecting All tables in Course Schema
+Create Table [Course].CoursesCLassMode(
+  [CourseId] [udt].[SurrogateKeyInt],
+  [ClassID] [udt].[SurrogateKeyInt],
+  [ModeID] [udt].[SurrogateKeyInt]
+  PRIMARY Key (ClassID,CourseID, Modeid),
+  FOREIGN Key (ClassID) REFERENCES [Course].[Class],
+  FOREIGN Key (CourseId) REFERENCES [Course].[course],
+  FOREIGN Key (ModeID) REFERENCES [Course].[Mode_Of_Instruction]
+)
+
+INSERT INTO Course.CoursesCLassMode
+(
+    ClassID,
+    CourseId,
+    ModeID
+)
+SELECT Distinct ClassID, Courseid, a.ModeID
+FROM Uploadfile.CurrentSemesterCourseOfferings
+JOIN [Course].[Class] ON ClassCode = code
+JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
+JOIN [Course].[Mode_Of_Instruction] a ON [ModeName] = [Mode of Instruction]
+
+
 
 -- Room Location Table
 
@@ -394,4 +400,3 @@ SELECT DISTINCT InstructorId, DepartmentID
 FROM Uploadfile.CurrentSemesterCourseOfferings
 JOIN Department.Departments ON DepartmentAbv = (SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)))
 JOIN Department.Instructor ON FullName = Instructor
-
