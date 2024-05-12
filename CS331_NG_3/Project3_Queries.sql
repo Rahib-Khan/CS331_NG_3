@@ -133,6 +133,7 @@ CREATE TYPE [Udt].[ClassDuration] FROM NVARCHAR(30) NOT NULL;
 create type [Udt].[SurrogateKeyFloat] from FLOAT not null
 
 --add foreign keys later with a seperate stored procedure
+
 CREATE TABLE [Course].[Class]
 (
 	[ClassID] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -144,7 +145,6 @@ CREATE TABLE [Course].[Class]
   [Time] [Udt].[ClassDuration] NULL,
   [Hours] [udt].[SurrogateKeyFloat] null,
   [Credits] [udt].[SurrogateKeyInt] null,
-  [ModeID] [Udt].[SurrogateKeyInt] null,
   [InstructorID] [Udt].[SurrogateKeyInt] null,
   [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
   [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
@@ -152,13 +152,11 @@ CREATE TABLE [Course].[Class]
 )
 
 insert into Course.Class
-(Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits], ModeID  )
+(Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits]  )
 select Enrolled, [Limit], Sec, Code, [Day], [Time], 
 (SUBSTRING([Course (hr, crd)], CHARINDEX('(', [Course (hr, crd)]) + 1, CHARINDEX(',', [Course (hr, crd)]) - CHARINDEX('(', [Course (hr, crd)]) - 1)),
-(SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1)),
-ModeID
+(SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1))
 from Uploadfile.CurrentSemesterCourseOfferings a
-join Course.Mode_Of_Instruction b on b.name = a.[Mode of Instruction]
 
 
 -- Bridge Table Connecting All tables in Course Schema
@@ -171,6 +169,8 @@ Create Table [Course].CoursesCLassMode(
   FOREIGN Key (CourseId) REFERENCES [Course].[course],
   FOREIGN Key (ModeID) REFERENCES [Course].[Mode_Of_Instruction]
 )
+
+
 
 INSERT INTO Course.CoursesCLassMode
 (
@@ -400,3 +400,148 @@ SELECT DISTINCT InstructorId, DepartmentID
 FROM Uploadfile.CurrentSemesterCourseOfferings
 JOIN Department.Departments ON DepartmentAbv = (SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)))
 JOIN Department.Instructor ON FullName = Instructor
+
+
+--- Creating all the stored procedures
+
+
+
+
+
+GO
+CREATE PROCEDURE [Project3].[CreateWorkFlowStepsTable]
+
+    @UserAuthorizationKey INT
+
+AS
+BEGIN
+
+
+    DROP TABLE IF EXISTS Process.WorkFlowSteps;
+
+    create table [Process].[WorkflowSteps]
+(
+    [WorkflowStepsKey] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    [WorkflowStepsDescription] [udt].[workflowstring] not null,
+    [WorkflowStepsTableRowCount] [udt].[Rowcount] IDENTITY(1,1) not null,
+    [StartingDateTime] [udt].[DateAdded] null DEFAULT SYSDATETIME(),
+    [EndDateTime] [udt].[DateAdded] null DEFAULT SYSDATETIME(),
+    [ClassTime] [Udt].[ClassTime] NULL DEFAULT ('7:45'),
+    [UserAuthorizationKey] [Udt].[SurrogateKeyInt] not null
+)
+
+    INSERT INTO [Process].[WorkflowSteps]
+        (UserAuthorizationKey, WorkFlowStepsDescription)
+    VALUES(@UserAuthorizationKey, 'Created the Process.WorkFlowSteps table')
+
+END
+GO
+
+CREATE PROCEDURE [Process].[usp_TrackWorkFlow]
+
+    @UserAuthorizationKey INT,
+    @WorkFlowStepsDescription NVARCHAR(100)
+
+AS
+BEGIN
+
+    INSERT INTO Process.WorkFlowSteps
+        (WorkflowStepsDescription, UserAuthorizationKey)
+    VALUES(@WorkFlowStepsDescription, @UserAuthorizationKey);
+
+
+END
+GO
+
+create schema [Project3];
+
+
+CREATE PROCEDURE [Project3].[Load_CourseTable]
+    @UserAuthorizationKey INT
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+
+    -- Insert into the customer table including the user auth key
+    insert into Course.Course
+    (CourseCode,[Description]) 
+    select distinct(SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)),
+    [Description] from Uploadfile.CurrentSemesterCourseOfferings
+
+
+    --  Insert the user into the Process.WorkFlowTable
+    EXEC [Process].[usp_TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course table';
+END
+GO
+
+
+CREATE PROCEDURE [Project3].[Load_ClassTable]
+    @UserAuthorizationKey INT
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+
+    -- Insert into the customer table including the user auth key
+    insert into Course.Class
+    (Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits]  )
+    select Enrolled, [Limit], Sec, Code, [Day], [Time], 
+    (SUBSTRING([Course (hr, crd)], CHARINDEX('(', [Course (hr, crd)]) + 1, CHARINDEX(',', [Course (hr, crd)]) - CHARINDEX('(', [Course (hr, crd)]) - 1)),
+    (SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1))
+    from Uploadfile.CurrentSemesterCourseOfferings a
+
+    --  Insert the user into the Process.WorkFlowTable
+    EXEC [Process].[usp_TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Class table';
+END
+GO
+
+
+CREATE PROCEDURE [Project3].[Load_ModeOfInstruction]
+    @UserAuthorizationKey INT
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+
+    -- Insert into the customer table including the user auth key
+    INSERT INTO Course.Mode_Of_Instruction
+    (
+        ModeName
+    )
+    SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
+
+    --  Insert the user into the Process.WorkFlowTable
+    EXEC [Process].[usp_TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into MOI table';
+END
+GO
+
+
+CREATE PROCEDURE [Project3].[Load_CourseBridgeTable]
+    @UserAuthorizationKey INT
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+
+    -- Insert into the customer table including the user auth key
+    INSERT INTO Course.CoursesCLassMode
+    (
+        ClassID,
+        CourseId,
+        ModeID
+    )
+    SELECT Distinct ClassID, Courseid, a.ModeID
+    FROM Uploadfile.CurrentSemesterCourseOfferings
+    JOIN [Course].[Class] ON ClassCode = code
+    JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
+    JOIN [Course].[Mode_Of_Instruction] a ON [ModeName] = [Mode of Instruction]
+
+    --  Insert the user into the Process.WorkFlowTable
+    EXEC [Process].[usp_TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into MOI table';
+END
+GO
