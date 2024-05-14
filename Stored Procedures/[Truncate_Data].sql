@@ -3,7 +3,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		<Mohammed>
+-- Author:		<Rahib & Mohammed>
 -- Create date: <5/12/2024>
 -- Description:	<Deletes all data in each table>
 -- =============================================
