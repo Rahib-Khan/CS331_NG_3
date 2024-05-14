@@ -2,7 +2,7 @@
 -- =============================================
 -- Author:		<Ahmed, Ashish, Ben, Esteban, Inderpreet, Mohammed, Nak, Rahib>
 -- Create date: <5/12/2024>
--- Description:	<Creating the Room Location Table>
+-- Description:	<Creating all the User Defined Datatypes>
 -- =============================================
 
 -- Created [Udt] Schema
