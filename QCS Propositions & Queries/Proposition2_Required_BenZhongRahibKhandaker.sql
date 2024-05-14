@@ -1,5 +1,5 @@
 -- =============================================
--- Author:		<Ashish>
+-- Author:		<Benjamin> <Rahib>
 -- Create date: <5/13/2024>
 -- Description:	Proposition #2 Required - How many instructors are in each department?
 -- =============================================
