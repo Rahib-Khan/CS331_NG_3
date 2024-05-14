@@ -1,6 +1,6 @@
 -- ---------------------------------------*****************************************************-------------------------------------------------- 
  
--- Author: Esteban Mesa
+-- Author: Esteban Mesa & Rahib Khandaker
 -- Procedure: [Project3].[DropForeignKeysFromQueensClassSchedule]
 -- Create date: 05, 12, 2024
 -- Description: drop foregin key
