@@ -1,7 +1,7 @@
 -- ===========================================================================================
 -- Author:		<Ahmed>
 -- Create date: <5/13/2024>
--- Description:	<Proposition #4Finds the courses with the highest and lowest enrollments>
+-- Description:	<Proposition #4 Find the courses with the highest and lowest enrollments>
 -- ===========================================================================================
 SELECT c.CourseCode, 
        c.Description,
