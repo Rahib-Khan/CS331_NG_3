@@ -3,7 +3,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		<Ben>
+-- Author:		<Ben & Esteban>
 -- Create date: <5/12/2024>
 -- Description:	<Creating the WorkFlowSteps Table>
 -- =============================================

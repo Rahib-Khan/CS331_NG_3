@@ -3,7 +3,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		<Ashish>
+-- Author:		<Ashish & Ahmed>
 -- Create date: <5/12/2024>
 -- Description:	<Creating the Room Location Table>
 -- =============================================
