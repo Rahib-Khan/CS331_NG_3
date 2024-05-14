@@ -1,7 +1,14 @@
--- ShowTableStatusRowCount 
--- AShish + Ahmed
-CREATE PROCEDURE [Project3].[ShowTableStatusRowCount]
-@UserAuthorizationKey INT
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Ashish>
+-- Create date: <5/12/2024>
+-- Description:	<Shows number of rows in each table>
+-- =============================================
+ALTER PROCEDURE [Project3].[ShowTableStatusRowCount]
+    @UserAuthorizationKey INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -24,8 +31,9 @@ BEGIN
     UNION ALL
     SELECT 'CoursesClassMode' AS TableName, COUNT(*) AS TotalRowCount FROM [Course].[CoursesClassMode];
 
-
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkFlowStepDescription = 'ShowTableRowCount';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkFlowStepsDescription = 'ShowTableRowCount',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 
     SET NOCOUNT OFF;
 END;
+GO

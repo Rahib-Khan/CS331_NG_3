@@ -1,4 +1,14 @@
-CREATE PROCEDURE [Project3].[Load_DepartmentTable]
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Nak>
+-- Create date: <5/12/2024>
+-- Description:	<Loading data into Department table>
+-- =============================================
+ALTER PROCEDURE [Project3].[Load_DepartmentTable]
     @UserAuthorizationKey INT
 AS
 BEGIN
@@ -7,8 +17,8 @@ BEGIN
 
 -- Insert into the customer table including the user auth key
 insert into Department.Departments
-(DepartmentName, DepartmentAbv)
-SELECT DISTINCT Department, SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
+(DepartmentName, DepartmentAbv, UserAuthorizationKey)
+SELECT DISTINCT Department, SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)), @UserAuthorizationKey
 FROM (
     SELECT DISTINCT (SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))) AS DepartmentCode,
         CASE SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
@@ -100,6 +110,9 @@ FROM (
 ) AS b
 join Uploadfile.CurrentSemesterCourseOfferings on DepartmentCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
 
+    select * from Department.Departments
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into Department table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into Department table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
+GO

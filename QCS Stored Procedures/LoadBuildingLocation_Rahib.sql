@@ -1,12 +1,21 @@
--- RAHIB LoadBuildingLocation
-CREATE PROCEDURE [Project3].[Load_BuildingLocation]
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Rahib>
+-- Create date: <5/12/2024>
+-- Description:	<Loading data into Building Location Table>
+-- =============================================
+ALTER PROCEDURE [Project3].[Load_BuildingLocation]
     @UserAuthorizationKey INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
+   
     insert into [Location].BuildingLocation
-    (BuildingLocationAbv,BuildingLocationName)
+    (BuildingLocationAbv,BuildingLocationName, UserAuthorizationKey)
     select distinct(SUBSTRING([Location], 1, CHARINDEX(' ',[Location], 1))),
         case (SUBSTRING([Location], 1, CHARINDEX(' ',[Location], 1)))
             when 'IB' then 'I Building'
@@ -33,10 +42,15 @@ BEGIN
             when 'GT' then 'Goldstein Theatre'
             when 'GB' then 'G Building'
             else 'Unknown'
-        end as Building
+        end as Building,
+        @UserAuthorizationKey
     from uploadfile.CurrentSemesterCourseOfferings
 
+    SELECT * from [Location].BuildingLocation
+
   
-    EXEC [Process].[usp_TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into BuildingLocation table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into BuildingLocation table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 
 END;
+GO
