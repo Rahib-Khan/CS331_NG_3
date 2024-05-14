@@ -79,7 +79,7 @@ VALUES
 create schema process
 
 create type [udt].[workflowstring] from NVARCHAR(100) not null
-create type [udt].[Rowcount] from [int] not null
+create type [udt].[RowCount] from [int] not null
 create table [Process].[WorkflowSteps]
 (
     [WorkflowStepsKey] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -95,7 +95,7 @@ create table [Process].[WorkflowSteps]
 --Author:Rahib
 	
 --Course Schema tables
-create schema Course
+create schema Course;
 
 --Adding datatype for section in course table	
 create type [udt].[SurrogateKeyString] from NVARCHAR(30) not null
@@ -106,9 +106,9 @@ create type [udt].[SurrogateKeyString] from NVARCHAR(30) not null
 
 -- Room Location Table
 
-create schema Location;
+CREATE SCHEMA Location;
 
-create table [Location].[BuildingLocation](
+CREATE TABLE [Location].[BuildingLocation](
   [BuildingLocationID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
   [BuildingLocationAbv] [udt].[SurrogateKeyString] not null,
   [BuildingLocationName] [udt].[SurrogateKeyString] not null,
@@ -168,9 +168,9 @@ join [Location].[BuildingLocation] on buildinglocationabv = SUBSTRING([Location]
 
 
 
-create schema Department;
+CREATE SCHEMA Department;
 
-create table [Department].[Departments](
+CREATE TABLE [Department].[Departments](
   [DepartmentID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
   [DepartmentAbv] [udt].[SurrogateKeystring] not null,
   [DepartmentName] [udt].[workflowstring] not null,
@@ -324,7 +324,7 @@ JOIN Department.Departments ON DepartmentAbv = (SUBSTRING([Course (hr, crd)], 1,
 JOIN Department.Instructor ON FullName = Instructor
 
 
-create table [Course].[Course]
+CREATE TABLE [Course].[Course]
 (
     [CourseID] [udt].[SurrogateKeyInt] identity(1,1) PRIMARY KEY NOT NULL,
     [CourseCode] [udt].[SurrogateKeyString]  null,
@@ -397,7 +397,7 @@ insert into Course.Class
 
 
 -- Bridge Table Connecting All tables in Course Schema
-Create Table [Course].CoursesCLassMode(
+Create Table [Course].[CoursesCLassMode](
   [CourseId] [udt].[SurrogateKeyInt],
   [ClassID] [udt].[SurrogateKeyInt],
   [ModeID] [udt].[SurrogateKeyInt],
