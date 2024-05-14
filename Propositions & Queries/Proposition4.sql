@@ -1,5 +1,5 @@
 -- ===========================================================================================
--- Author:		<Ahmed>
+-- Author:		<Ahmed & Ashish>
 -- Create date: <5/13/2024>
 -- Description:	<Proposition #4 Find the courses with the highest and lowest enrollments>
 -- ===========================================================================================

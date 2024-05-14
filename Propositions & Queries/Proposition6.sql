@@ -1,5 +1,5 @@
 -- ======================================================================================
--- Author:		<Ahmed>
+-- Author:		<Ahmed & Ashish>
 -- Create date: <5/13/2024>
 -- Description:	<Proposition #6 Calculates the enrollment rate percentage for each class>
 -- ======================================================================================
