@@ -63,6 +63,17 @@ CREATE TABLE [DbSecurity].[UserAuthorization]
 	[DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME()
 )
 
+insert into [DbSecurity].[UserAuthorization]
+(GroupMemberLastName,GroupMemberFirstName)
+VALUES
+('Khandaker','Rahib'),
+('Zhong','Benjamin'),
+('Lee','Nak Heon'),
+('Mesa','Esteban'),
+('Fayyaz', 'Mohammad'),
+('Maharjan', 'Ashish'),
+('Sharif', 'Ahmed'),
+('Singh', 'Inderpreet')
 
 --Create Process workflow steps table
 create schema process
@@ -89,103 +100,7 @@ create schema Course
 --Adding datatype for section in course table	
 create type [udt].[SurrogateKeyString] from NVARCHAR(30) not null
 
-create table [Course].[Course]
-(
-    [CourseID] [udt].[SurrogateKeyInt] identity(1,1) PRIMARY KEY NOT NULL,
-    [CourseCode] [udt].[SurrogateKeyString]  null,
-    [Description] [udt].[workflowstring]  null,
-    [UserAuthorizationKey] [Udt].[SurrogateKeyInt]  null,
-    [DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
-    [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
-)
 
-
---Adding some columns from uploadfile 
-insert into Course.Course
-(CourseCode,[Description]) 
-select distinct(SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)),
-[Description] from 
-Uploadfile.CurrentSemesterCourseOfferings
-
-
-
-CREATE TABLE [Course].[Mode_Of_Instruction]
-(
-  [ModeID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
-  [ModeName] [udt].[workflowstring] not null,
-  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
-  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
-  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
-);
-
-
-INSERT INTO Course.Mode_Of_Instruction
-(
-    ModeName
-)
-SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
-
-
-
-
-CREATE TYPE [Udt].[ClassDuration] FROM NVARCHAR(30) NOT NULL;
-
-create type [Udt].[SurrogateKeyFloat] from FLOAT not null
-
---add foreign keys later with a seperate stored procedure
-
-CREATE TABLE [Course].[Class]
-(
-	[ClassID] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
-  [Enrollment] [Udt].[SurrogateKeyInt] NULL,
-  [Limit] [Udt].[SurrogateKeyInt] NULL,
-  [Section] [Udt].[SurrogateKeyString] null,
-  [ClassCode] [Udt].[SurrogateKeyString] NULL,
-  [Days] [Udt].[SurrogateKeyString] null,
-  [Time] [Udt].[ClassDuration] NULL,
-  [Hours] [udt].[SurrogateKeyFloat] null,
-  [Credits] [udt].[SurrogateKeyInt] null,
-  [InstructorID] [Udt].[SurrogateKeyInt] null,
-  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
-  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
-  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
-)
-
-insert into Course.Class
-(Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits]  )
-select Enrolled, [Limit], Sec, Code, [Day], [Time], 
-(SUBSTRING([Course (hr, crd)], CHARINDEX('(', [Course (hr, crd)]) + 1, CHARINDEX(',', [Course (hr, crd)]) - CHARINDEX('(', [Course (hr, crd)]) - 1)),
-(SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1))
-from Uploadfile.CurrentSemesterCourseOfferings a
-
-
--- Bridge Table Connecting All tables in Course Schema
-Create Table [Course].CoursesCLassMode(
-  [CourseId] [udt].[SurrogateKeyInt],
-  [ClassID] [udt].[SurrogateKeyInt],
-  [ModeID] [udt].[SurrogateKeyInt],
-  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
-  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
-  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
-  PRIMARY Key (ClassID,CourseID, Modeid),
-  FOREIGN Key (ClassID) REFERENCES [Course].[Class],
-  FOREIGN Key (CourseId) REFERENCES [Course].[course],
-  FOREIGN Key (ModeID) REFERENCES [Course].[Mode_Of_Instruction]
-)
-
-
-
-INSERT INTO Course.CoursesCLassMode
-(
-    ClassID,
-    CourseId,
-    ModeID
-)
-SELECT Distinct ClassID, Courseid, a.ModeID
-FROM Uploadfile.CurrentSemesterCourseOfferings
-JOIN [Course].[Class] ON ClassCode = code
-JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
-JOIN [Course].[Mode_Of_Instruction] a ON [ModeName] = [Mode of Instruction]
 
 
 
@@ -409,61 +324,152 @@ JOIN Department.Departments ON DepartmentAbv = (SUBSTRING([Course (hr, crd)], 1,
 JOIN Department.Instructor ON FullName = Instructor
 
 
+create table [Course].[Course]
+(
+    [CourseID] [udt].[SurrogateKeyInt] identity(1,1) PRIMARY KEY NOT NULL,
+    [CourseCode] [udt].[SurrogateKeyString]  null,
+    [Description] [udt].[workflowstring]  null,
+    [UserAuthorizationKey] [Udt].[SurrogateKeyInt]  null,
+    [DateAdded] [Udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+    [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
+)
+
+
+--Adding some columns from uploadfile 
+insert into Course.Course
+(CourseCode,[Description]) 
+select distinct(SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)),
+[Description] from 
+Uploadfile.CurrentSemesterCourseOfferings
+
+
+
+CREATE TABLE [Course].[Mode_Of_Instruction]
+(
+  [ModeID] [udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+  [ModeName] [udt].[workflowstring] not null,
+  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
+  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+);
+
+
+INSERT INTO Course.Mode_Of_Instruction
+(
+    ModeName
+)
+SELECT distinct[Mode Of Instruction] FROM Uploadfile.CurrentSemesterCourseOfferings
+
+
+
+
+CREATE TYPE [Udt].[ClassDuration] FROM NVARCHAR(30) NOT NULL;
+
+create type [Udt].[SurrogateKeyFloat] from FLOAT not null
+
+--add foreign keys later with a seperate stored procedure
+
+CREATE TABLE [Course].[Class]
+(
+	[ClassID] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
+  [Enrollment] [Udt].[SurrogateKeyInt] NULL,
+  [Limit] [Udt].[SurrogateKeyInt] NULL,
+  [Section] [Udt].[SurrogateKeyString] null,
+  [ClassCode] [Udt].[SurrogateKeyString] NULL,
+  [Days] [Udt].[SurrogateKeyString] null,
+  [Time] [Udt].[ClassDuration] NULL,
+  [Hours] [udt].[SurrogateKeyFloat] null,
+  [Credits] [udt].[SurrogateKeyInt] null,
+  [InstructorID] [Udt].[SurrogateKeyInt] null,
+  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
+  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+)
+
+insert into Course.Class
+    (Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits],InstructorID  )
+    select Enrolled, [Limit], Sec, Code, [Day], [Time], 
+    (SUBSTRING([Course (hr, crd)], CHARINDEX('(', [Course (hr, crd)]) + 1, CHARINDEX(',', [Course (hr, crd)]) - CHARINDEX('(', [Course (hr, crd)]) - 1)),
+    (SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1)),
+    InstructorID
+    from Uploadfile.CurrentSemesterCourseOfferings a
+    JOIN Department.Instructor ON FullName = Instructor
+
+
+-- Bridge Table Connecting All tables in Course Schema
+Create Table [Course].CoursesCLassMode(
+  [CourseId] [udt].[SurrogateKeyInt],
+  [ClassID] [udt].[SurrogateKeyInt],
+  [ModeID] [udt].[SurrogateKeyInt],
+  [UserAuthorizationKey] [Udt].[SurrogateKeyInt] null,
+  [DateAdded] [udt].[DateAdded] NULL DEFAULT SYSDATETIME(),
+  [DateOfLastUpdate] [udt].[DateAdded] NULL DEFAULT SYSDATETIME()
+  PRIMARY Key (ClassID,CourseID, Modeid),
+  FOREIGN Key (ClassID) REFERENCES [Course].[Class],
+  FOREIGN Key (CourseId) REFERENCES [Course].[course],
+  FOREIGN Key (ModeID) REFERENCES [Course].[Mode_Of_Instruction]
+)
+
+
+
+INSERT INTO Course.CoursesCLassMode
+(
+    ClassID,
+    CourseId,
+    ModeID
+)
+SELECT Distinct ClassID, Courseid, a.ModeID
+FROM Uploadfile.CurrentSemesterCourseOfferings
+JOIN [Course].[Class] ON ClassCode = code
+JOIN [Course].[Course] ON CourseCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX('(', [Course (hr, crd)])-1)
+JOIN [Course].[Mode_Of_Instruction] a ON [ModeName] = [Mode of Instruction]
+
 --- Creating all the stored procedures
 
 
 
 
 
-GO
-CREATE PROCEDURE [Project3].[CreateWorkFlowStepsTable]
-
-    @UserAuthorizationKey INT
-
-AS
-BEGIN
-
-
-    DROP TABLE IF EXISTS Process.WorkFlowSteps;
-
-    create table [Process].[WorkflowSteps]
-(
-    [WorkflowStepsKey] [Udt].[SurrogateKeyInt] IDENTITY(1,1) PRIMARY KEY NOT NULL,
-    [WorkflowStepsDescription] [udt].[workflowstring] not null,
-    [WorkflowStepsTableRowCount] [udt].[Rowcount] IDENTITY(1,1) not null,
-    [StartingDateTime] [udt].[DateAdded] null DEFAULT SYSDATETIME(),
-    [EndDateTime] [udt].[DateAdded] null DEFAULT SYSDATETIME(),
-    [ClassTime] [Udt].[ClassTime] NULL DEFAULT ('7:45'),
-    [UserAuthorizationKey] [Udt].[SurrogateKeyInt] not null
-)
-
-    INSERT INTO [Process].[WorkflowSteps]
-        (UserAuthorizationKey, WorkFlowStepsDescription)
-    VALUES(@UserAuthorizationKey, 'Created the Process.WorkFlowSteps table')
-
-END
+create schema [Project3];
 GO
 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Rahib>
+-- Create date: <5/13/2024>
+-- Description:	<Tracking workflow>
+-- =============================================
 CREATE PROCEDURE [Project3].[TrackWorkFlow]
 
     @UserAuthorizationKey INT,
-    @WorkFlowStepsDescription NVARCHAR(100)
+    @WorkFlowStepsDescription NVARCHAR(100),
+    @WorkflowStepsTableRowCount INT
 
 AS
 BEGIN
 
     INSERT INTO Process.WorkFlowSteps
-        (WorkflowStepsDescription, UserAuthorizationKey)
-    VALUES(@WorkFlowStepsDescription, @UserAuthorizationKey);
+        (WorkflowStepsDescription, UserAuthorizationKey, WorkflowStepsTableRowCount)
+    VALUES(@WorkFlowStepsDescription, @UserAuthorizationKey, @WorkflowStepsTableRowCount);
 
 
 END
 GO
 
-create schema [Project3];
 
 go
-
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Rahib>
+-- Create date: <5/13/2024>
+-- Description:	<Load The course table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_CourseTable]
     @UserAuthorizationKey INT
 AS
@@ -482,11 +488,20 @@ BEGIN
 
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
-
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Rahib>
+-- Create date: <5/13/2024>
+-- Description:	<Load The class table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_ClassTable]
     @UserAuthorizationKey INT
 AS
@@ -497,20 +512,31 @@ BEGIN
 
     -- Insert into the customer table including the user auth key
     insert into Course.Class
-    (Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits], UserAuthorizationKey  )
+    (Enrollment, [Limit], Section, ClassCode, [Days], [Time], [Hours], [Credits],InstructorID, UserAuthorizationKey  )
     select Enrolled, [Limit], Sec, Code, [Day], [Time], 
     (SUBSTRING([Course (hr, crd)], CHARINDEX('(', [Course (hr, crd)]) + 1, CHARINDEX(',', [Course (hr, crd)]) - CHARINDEX('(', [Course (hr, crd)]) - 1)),
     (SUBSTRING([Course (hr, crd)], CHARINDEX(')', [Course (hr, crd)]) - 1, 1)),
+    InstructorID,
     @UserAuthorizationKey
     from Uploadfile.CurrentSemesterCourseOfferings a
+    JOIN Department.Instructor ON FullName = Instructor
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Class table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Class table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
 
-
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Rahib>
+-- Create date: <5/13/2024>
+-- Description:	<Load The MOI table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_ModeOfInstruction]
     @UserAuthorizationKey INT
 AS
@@ -528,11 +554,20 @@ BEGIN
     SELECT distinct[Mode Of Instruction], @UserAuthorizationKey FROM Uploadfile.CurrentSemesterCourseOfferings
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into MOI table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into MOI table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
-
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Rahib>
+-- Create date: <5/13/2024>
+-- Description:	<Load The course bridge table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_CourseBridgeTable]
     @UserAuthorizationKey INT
 AS
@@ -556,61 +591,22 @@ BEGIN
     JOIN [Course].[Mode_Of_Instruction] a ON [ModeName] = [Mode of Instruction]
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course Bridge table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course Bridge table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
 
--- Mohammad Fayyaz
--- 
-CREATE PROCEDURE [Project3].[Load_BuildingLocation]
-    @UserAuthorizationKey INT
-AS
-BEGIN
-    SET NOCOUNT ON;
 
-   
-    insert into [Location].BuildingLocation
-    (BuildingLocationAbv,BuildingLocationName, UserAuthorizationKey)
-    select distinct(SUBSTRING([Location], 1, CHARINDEX(' ',[Location], 1))),
-        case (SUBSTRING([Location], 1, CHARINDEX(' ',[Location], 1)))
-            when 'IB' then 'I Building'
-            when 'GC' then 'Gertz Center'
-            when 'QH' then 'Queens Hall'
-            when 'SU' then 'Student Union'
-            when 'RA' then 'Rathhaus Hall'
-            when 'MU' then 'Music Building'
-            when 'KY' then 'Keily Hall'
-            when 'RZ' then 'Razran Hall'
-            when 'SB' then 'Science Building'
-            when 'CH' then 'Colwin Hall'
-            when 'HH' then 'Honors Hall'
-            when 'AR' then 'Alumni Hall'
-            when 'DY' then 'Delany Hall'
-            when 'PH' then 'Powdermaker Hall'
-            when 'RO' then 'Rosenthal Library'
-            when 'FG' then 'FitzGerald Gym'
-            when 'CD' then 'Colden Auditorium'
-            when 'KG' then 'King Hall'
-            when 'JH' then 'Jefferson Hall'
-            when 'RE' then 'Remsen Hall'
-            when 'KP' then 'Klapper Hall'
-            when 'GT' then 'Goldstein Theatre'
-            when 'GB' then 'G Building'
-            else 'Unknown'
-        end as Building,
-        @UserAuthorizationKey
-    from uploadfile.CurrentSemesterCourseOfferings
-
-  
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into BuildingLocation table';
-
-END;
+SET ANSI_NULLS ON
 GO
-
-
--- ShowTableStatusRowCount 
--- AShish
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Ben>
+-- Create date: <5/13/2024>
+-- Description:	<ShowTableRowCount>
+-- =============================================
 go
 CREATE PROCEDURE [Project3].[ShowTableStatusRowCount]
     @UserAuthorizationKey INT
@@ -636,13 +632,23 @@ BEGIN
     UNION ALL
     SELECT 'CoursesClassMode' AS TableName, COUNT(*) AS TotalRowCount FROM [Course].[CoursesClassMode];
 
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkFlowStepsDescription = 'ShowTableRowCount';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkFlowStepsDescription = 'ShowTableRowCount',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 
     SET NOCOUNT OFF;
 END;
 GO
 
 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Ben>
+-- Create date: <5/13/2024>
+-- Description:	<Drop Foreign Keys to QueensClassSchedule DB>
+-- =============================================
 
 CREATE PROCEDURE [Project3].[DropForeignKeysFromQueensClassSchedule]
     @UserAuthorizationKey INT
@@ -676,12 +682,21 @@ BEGIN
     Drop CONSTRAINT if EXISTS BuildingLocationID, FK_Room_UserAuthorizationKey
 
     -- now we just log the work :D
-    EXEC [Project3].[TrackWorkFlow] @WorkFlowStepsDescription = 'Drop Foreign Keys from QueensClassSchedule DB', @UserAuthorizationKey = @UserAuthorizationKey;
+    EXEC [Project3].[TrackWorkFlow] @WorkFlowStepsDescription = 'Drop Foreign Keys from QueensClassSchedule DB',
+    @UserAuthorizationKey = @UserAuthorizationKey,
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END;
 GO
 
--- ADDFOREIGNKEYSTOQUEENSCLASSSCHEDULE DB
--- Ben
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Ben>
+-- Create date: <5/13/2024>
+-- Description:	<Add Foreign Keys to QueensClassSchedule DB>
+-- =============================================
 
 CREATE PROCEDURE [Project3].[AddForeignKeysToQueensClassSchedule]
 
@@ -738,7 +753,6 @@ BEGIN
       REFERENCES [DbSecurity].[UserAuthorization] (UserAuthorizationKey)
 
 
-        --ClassId maybe neeeded
 		ALTER TABLE [Location].[BuildingLocation]
 		ADD 
    			CONSTRAINT [FK_Building_UserAuthorizationKey] FOREIGN KEY (UserAuthorizationKey)
@@ -750,14 +764,22 @@ BEGIN
    			CONSTRAINT [FK_Room_UserAuthorizationKey] FOREIGN KEY (UserAuthorizationKey)
       	REFERENCES [DbSecurity].[UserAuthorization] (UserAuthorizationKey)
 
-    EXEC [Project3].[TrackWorkFlow] @WorkFlowStepsDescription = 'Add Foreign Keys to QueensClassSchedule DB', @UserAuthorizationKey = @UserAuthorizationKey;
+    EXEC [Project3].[TrackWorkFlow] @WorkFlowStepsDescription = 'Add Foreign Keys to QueensClassSchedule DB', 
+    @UserAuthorizationKey = @UserAuthorizationKey,
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 
 END
 GO
 
--- Load Department Table
--- Author: Nak Heon Lee
--- Insert into the Department table including the user auth key
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Nak>
+-- Create date: <5/13/2024>
+-- Description:	<Load Data into Department  Table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_DepartmentTable]
     @UserAuthorizationKey INT
 AS
@@ -765,7 +787,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
--- Insert into the Department table including the user auth key
+-- Insert into the customer table including the user auth key
 insert into Department.Departments
 (DepartmentName, DepartmentAbv, UserAuthorizationKey)
 SELECT DISTINCT Department, SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1)), @UserAuthorizationKey
@@ -861,12 +883,21 @@ FROM (
 join Uploadfile.CurrentSemesterCourseOfferings on DepartmentCode = SUBSTRING([Course (hr, crd)], 1, CHARINDEX(' ', [Course (hr, crd)], 1))
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into Department table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into Department table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
 
-
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Nak>
+-- Create date: <5/13/2024>
+-- Description:	<Load Data into Instructor  Table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_InstructorTable]
     @UserAuthorizationKey INT
 AS
@@ -886,10 +917,21 @@ BEGIN
     Uploadfile.CurrentSemesterCourseOfferings
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into Instructor table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into Instructor table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Nak>
+-- Create date: <5/13/2024>
+-- Description:	<Load Data into Department Bridge  Table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_DepartmentBridgeTable]
     @UserAuthorizationKey INT
 AS
@@ -911,13 +953,21 @@ BEGIN
     JOIN Department.Instructor ON FullName = Instructor
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course Bridge table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into Course Bridge table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
 
--- Load RoomLocation Table
--- Author: Nak Heon Lee
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Ashish>
+-- Create date: <5/13/2024>
+-- Description:	<Load Data into Building Location Table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_BuildingLocation]
     @UserAuthorizationKey INT
 AS
@@ -958,12 +1008,22 @@ BEGIN
     from uploadfile.CurrentSemesterCourseOfferings
 
   
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into BuildingLocation table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription = 'Loading data into BuildingLocation table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 
 END;
 GO
 
 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Ashish>
+-- Create date: <5/13/2024>
+-- Description:	<Load Data into Room Location Table>
+-- =============================================
 CREATE PROCEDURE [Project3].[Load_RoomLocationTable]
     @UserAuthorizationKey INT
 AS
@@ -977,11 +1037,17 @@ BEGIN
     join [Location].[BuildingLocation] on buildinglocationabv = SUBSTRING([Location], 1, CHARINDEX(' ', [Location], 1))
 
     --  Insert the user into the Process.WorkFlowTable
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into RoomLocation table';
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into RoomLocation table',
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO
 
 
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 -- =============================================
 -- Author:		<Rahib>
 -- Create date: <5/13/2024>
@@ -1009,14 +1075,15 @@ BEGIN
     --	Load the schema
     --
 
+	
+	EXEC  [Project3].[Load_DepartmentTable] @UserAuthorizationKey = 2;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_InstructorTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
+    EXEC  [Project3].[Load_DepartmentBridgeTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
 	EXEC  [Project3].[Load_ModeOfInstruction] @UserAuthorizationKey = 1;  -- Change -1 to the appropriate UserAuthorizationKey
 	EXEC  [Project3].[Load_CourseTable] @UserAuthorizationKey = 6;  -- Change -1 to the appropriate UserAuthorizationKey
 	EXEC  [Project3].[Load_ClassTable] @UserAuthorizationKey = 5;  -- Change -1 to the appropriate UserAuthorizationKey
     EXEC  [Project3].[Load_CourseBridgeTable] @UserAuthorizationKey = 5;  -- Change -1 to the appropriate UserAuthorizationKey
-	EXEC  [Project3].[Load_DepartmentTable] @UserAuthorizationKey = 2;  -- Change -1 to the appropriate UserAuthorizationKey
-	EXEC  [Project3].[Load_InstructorTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
-    EXEC  [Project3].[Load_DepartmentBridgeTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
-	EXEC  [Project3].[Load_BuildingLocation] @UserAuthorizationKey = 7;  -- Change -1 to the appropriate UserAuthorizationKey
+    EXEC  [Project3].[Load_BuildingLocation] @UserAuthorizationKey = 7;  -- Change -1 to the appropriate UserAuthorizationKey
     EXEC [Project3].[Load_RoomLocationTable] @UserAuthorizationKey = 3;  -- Change -1 to the appropriate UserAuthorizationKey
   --
     --	Recreate all of the foreign keys prior after loading
@@ -1030,6 +1097,7 @@ BEGIN
     --
 
 
-    EXEC [Project3].[TrackWorkFlow] @WorkFlowStepsDescription = 'Loading all the Data', @UserAuthorizationKey = @UserAuthorizationKey;
+    EXEC [Project3].[TrackWorkFlow] @WorkFlowStepsDescription = 'Loading all the Data', @UserAuthorizationKey = @UserAuthorizationKey,
+    @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END;
 GO
