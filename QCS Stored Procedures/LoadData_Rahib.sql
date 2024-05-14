@@ -3,8 +3,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		<Erik Kim>
--- Create date: <12/7/2020>
+-- Author:	<Rahib>
+-- Create date: <5/12/2024>
 -- Description:	<Load Data>
 -- =============================================
 ALTER PROCEDURE [Project3].[LoadData] @UserAuthorizationKey INT
@@ -29,15 +29,15 @@ BEGIN
     --	Load the schema
     --
 
-	  EXEC  [Project3].[Load_ModeOfInstruction] @UserAuthorizationKey = 1;  -- Change -1 to the appropriate UserAuthorizationKey
-	  EXEC  [Project3].[Load_CourseTable] @UserAuthorizationKey = 6;  -- Change -1 to the appropriate UserAuthorizationKey
-	  EXEC  [Project3].[Load_ClassTable] @UserAuthorizationKey = 5;  -- Change -1 to the appropriate UserAuthorizationKey
-    EXEC  [Project3].[Load_CourseBridgeTable] @UserAuthorizationKey = 5;  -- Change -1 to the appropriate UserAuthorizationKey
-	  EXEC  [Project3].[Load_DepartmentTable] @UserAuthorizationKey = 2;  -- Change -1 to the appropriate UserAuthorizationKey
-	  EXEC  [Project3].[Load_InstructorTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
-    EXEC  [Project3].[Load_DepartmentBridgeTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
-	  EXEC  [Project3].[Load_BuildingLocation] @UserAuthorizationKey = 7;  -- Change -1 to the appropriate UserAuthorizationKey
-    EXEC [Project3].[Load_RoomLocationTable] @UserAuthorizationKey = 3;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_ModeOfInstruction] @UserAuthorizationKey = 1;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_CourseTable] @UserAuthorizationKey = 6;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_ClassTable] @UserAuthorizationKey = 5;  -- Change -1 to the appropriate UserAuthorizationKey
+    	EXEC  [Project3].[Load_CourseBridgeTable] @UserAuthorizationKey = 5;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_DepartmentTable] @UserAuthorizationKey = 2;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_InstructorTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
+    	EXEC  [Project3].[Load_DepartmentBridgeTable] @UserAuthorizationKey = 4;  -- Change -1 to the appropriate UserAuthorizationKey
+	EXEC  [Project3].[Load_BuildingLocation] @UserAuthorizationKey = 7;  -- Change -1 to the appropriate UserAuthorizationKey
+    	EXEC [Project3].[Load_RoomLocationTable] @UserAuthorizationKey = 3;  -- Change -1 to the appropriate UserAuthorizationKey
   --
     --	Recreate all of the foreign keys prior after loading
     --
