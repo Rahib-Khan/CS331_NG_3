@@ -1,7 +1,7 @@
 -- =============================================
 -- Author:		<Ahmed>
 -- Create date: <5/13/2024>
--- Description: Show all instructors who are teaching in classes in multiple departments
+-- Description: Proposition #1 Required - Show all instructors who are teaching in classes in multiple departments
 -- =============================================                         
 
 SELECT i.FirstName, i.LastName, COUNT(DISTINCT d.DepartmentName) AS DepartmentCount
