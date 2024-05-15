@@ -23,7 +23,7 @@ BEGIN
     TRUNCATE Table [LOCATION].BuildingLocation;
     TRUNCATE Table [Location].[RoomLocation];
 
-    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Loading data into RoomLocation table',
+    EXEC [Project3].[TrackWorkFlow] @UserAuthorizationKey = @UserAuthorizationKey, @WorkflowStepsDescription =  'Deletes all data in each table',
     @WorkflowStepsTableRowCount = @@ROWCOUNT;
 END
 GO

@@ -3,7 +3,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 -- =============================================
--- Author:		<Ben>
+-- Author:		<Rahib>
 -- Create date: <5/12/2024>
 -- Description:	<Loading data into Course table>
 -- =============================================

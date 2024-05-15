@@ -3,7 +3,8 @@
 -- Create date: <5/13/2024>
 -- Description:	<Proposition #6 Calculates the enrollment rate percentage for each class>
 -- ======================================================================================
-SELECT 
+SELECT
+    cl.ClassID, 
     cl.Section, 
     cl.Enrollment, 
     cl.Limit, 
